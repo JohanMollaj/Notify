@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To-Do App</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://kit.fontawesome.com/2847e14671.js" crossorigin="anonymous"></script></head>
+
+<body>
+    <div class="container">
+        <div class="container-head">
+            <h1>My To-Do List</h1>
+            <button id="addTaskBtn" class="addTaskBtn"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <div class="container-body">
+            <div class="filter-container">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="active">Active</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+            </div>
+            <h2>Task List</h2>
+            <ul id="taskList"></ul>
+        </div>
+    </div>
+
+    <!-- Task Dialog -->
+    <div class="dialog-overlay" id="taskDialog">
+        <div class="task-dialog">
+            <div class="dialog-header">
+                <h3 id="dialogTitle">Add New Task</h3>
+                <button class="close-dialog" id="closeDialog"><i class="fa-solid fa-times"></i></button>
+            </div>
+        <div class="dialog-body">
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" placeholder="Enter task title" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description (Optional)</label>
+                    <textarea id="taskDescription" placeholder="Enter task description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskDueDate">Due Date (Optional)</label>
+                    <input type="date" id="taskDueDate">
+                </div>
+            </form>
+        </div>
+        <div class="dialog-footer">
+            <button class="cancel-btn" id="cancelTask">Cancel</button>
+            <button class="save-btn" id="saveTask">Save Task</button>
+        </div>
+    </div>
+</body>
+
+<script src="index.js"></script>
+</html>
