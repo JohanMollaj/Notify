@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const taskTitle = document.getElementById('taskTitle');
     const taskDescription = document.getElementById('taskDescription');
     const taskDueDate = document.getElementById('taskDueDate');
+    const taskCategory = document.getElementById('taskCategory');
     const dialogTitle = document.getElementById('dialogTitle');
     const filterButtons = document.querySelectorAll('.filter-btn');
 
@@ -24,6 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const noteForm = document.getElementById('noteForm');
     const noteTitle = document.getElementById('noteTitle');
     const noteContent = document.getElementById('noteContent');
+    const noteCategory = document.getElementById('noteCategory');
     const noteDialogTitle = document.getElementById('noteDialogTitle');
 
     // Tab-related DOM elements
@@ -38,6 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // State variables
     let tasks = [];
     let notes = [];
+    let filteredTasks = [];
+    let filteredNotes = [];
     let currentFilter = 'all';
     let editingTaskId = null;
     let editingNoteId = null;
@@ -59,12 +63,22 @@ document.addEventListener('DOMContentLoaded', function() {
         loadTasks();
         loadNotes();
         
+        // Initialize filtered arrays
+        filteredTasks = [...tasks];
+        filteredNotes = [...notes];
+        
         // Render initial data
         renderTasks();
         renderNotes();
         
         // Setup event listeners
         setupEventListeners();
+
+        // Make tasks and notes available globally for category filtering
+        window.tasks = tasks;
+        window.notes = notes;
+        window.renderTasks = renderTasks;
+        window.renderNotes = renderNotes;
     }
 
     // Tab functionality
@@ -99,6 +113,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveTasks() {
         localStorage.setItem('tasks', JSON.stringify(tasks));
+        
+        // Update tasks array in window scope for category filtering
+        window.tasks = tasks;
+        
+        // Update category sidebar if available
+        if (window.categoryManager && window.categoryManager.renderCategorySidebar) {
+            window.categoryManager.renderCategorySidebar();
+        }
     }
 
     function openTaskDialog(mode = 'add', taskId = null) {
@@ -115,6 +137,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (taskToEdit) {
                 if (taskTitle) taskTitle.value = taskToEdit.title;
                 if (taskDescription) taskDescription.value = taskToEdit.description || '';
+                if (taskCategory) taskCategory.value = taskToEdit.category || '';
                 
                 // Update the custom calendar if it exists
                 if (window.customCalendar) {
@@ -141,6 +164,16 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (taskDueDate) {
                 const today = new Date().toISOString().split('T')[0];
                 taskDueDate.value = today;
+            }
+        }
+        
+        // Refresh category select options
+        if (window.categoryManager && window.categoryManager.populateCategorySelects) {
+            window.categoryManager.populateCategorySelects();
+            
+            // If adding a new task, set the default category to the currently selected one
+            if (mode === 'add' && taskCategory && window.categoryManager.setDefaultCategoryInForm) {
+                window.categoryManager.setDefaultCategoryInForm(taskCategory);
             }
         }
         
@@ -174,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
             title: title,
             description: taskDescription ? taskDescription.value.trim() : '',
             dueDate: dueDate,
+            category: taskCategory ? taskCategory.value : '',
             completed: false,
             createdAt: new Date().toISOString()
         };
@@ -205,7 +239,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     ...task,
                     title: title,
                     description: taskDescription ? taskDescription.value.trim() : task.description,
-                    dueDate: dueDate
+                    dueDate: dueDate,
+                    category: taskCategory ? taskCategory.value : task.category || ''
                 };
             }
             return task;
@@ -260,20 +295,41 @@ document.addEventListener('DOMContentLoaded', function() {
         renderTasks();
     }
 
-    // Get filtered tasks based on current filter
+    // Get filtered tasks based on current filter and category
     function getFilteredTasks() {
+        // First, filter by category (if a category is selected)
+        let categoryFiltered = [...tasks];
+        
+        if (window.categoryManager && window.categoryManager.getCurrentCategory()) {
+            const currentCategory = window.categoryManager.getCurrentCategory();
+            categoryFiltered = tasks.filter(task => task.category === currentCategory);
+        }
+        
+        // Then, filter by completion status
         switch (currentFilter) {
             case 'active':
-                return tasks.filter(task => !task.completed);
+                return categoryFiltered.filter(task => !task.completed);
             case 'completed':
-                return tasks.filter(task => task.completed);
+                return categoryFiltered.filter(task => task.completed);
             default:
-                return tasks;
+                return categoryFiltered;
         }
     }
 
+    // Get category name by ID
+    function getCategoryName(categoryId) {
+        if (!categoryId) return '';
+        
+        if (window.categoryManager && window.categoryManager.getCategoryById) {
+            const category = window.categoryManager.getCategoryById(categoryId);
+            return category ? category.name : '';
+        }
+        
+        return '';
+    }
+
     // Render tasks to the DOM
-    function renderTasks() {
+    function renderTasks(tasksToRender) {
         // Check if taskList exists
         if (!taskList) {
             console.warn('taskList element not found');
@@ -283,8 +339,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear current list
         taskList.innerHTML = '';
         
-        // Get tasks based on current filter
-        const filteredTasks = getFilteredTasks();
+        // Get tasks based on current filter and category
+        const filteredTasks = tasksToRender || getFilteredTasks();
         
         // Sort tasks by due date (closest first, then by creation date)
         filteredTasks.sort((a, b) => {
@@ -308,7 +364,13 @@ document.addEventListener('DOMContentLoaded', function() {
             if (tasks.length === 0) {
                 emptyMessage.textContent = 'Your to-do list is empty. Add a task to get started!';
             } else {
-                emptyMessage.textContent = `No ${currentFilter} tasks found.`;
+                const currentCategory = window.categoryManager ? window.categoryManager.getCurrentCategory() : null;
+                if (currentCategory) {
+                    const categoryName = getCategoryName(currentCategory);
+                    emptyMessage.textContent = `No ${currentFilter} tasks found in category "${categoryName}".`;
+                } else {
+                    emptyMessage.textContent = `No ${currentFilter} tasks found.`;
+                }
             }
             
             taskList.appendChild(emptyMessage);
@@ -318,6 +380,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 taskItem.className = 'task-item';
                 if (task.completed) {
                     taskItem.classList.add('completed');
+                }
+                
+                // Add category badge if task has a category
+                if (task.category) {
+                    const categoryBadge = document.createElement('span');
+                    categoryBadge.className = 'task-category';
+                    categoryBadge.textContent = getCategoryName(task.category);
+                    taskItem.appendChild(categoryBadge);
                 }
                 
                 // Create task content
@@ -403,6 +473,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function saveNotes() {
         localStorage.setItem('notes', JSON.stringify(notes));
+        
+        // Update notes array in window scope for category filtering
+        window.notes = notes;
+        
+        // Update category sidebar if available
+        if (window.categoryManager && window.categoryManager.renderCategorySidebar) {
+            window.categoryManager.renderCategorySidebar();
+        }
     }
 
     function openNoteDialog(mode = 'add', noteId = null) {
@@ -422,10 +500,21 @@ document.addEventListener('DOMContentLoaded', function() {
             if (noteToEdit) {
                 if (noteTitle) noteTitle.value = noteToEdit.title;
                 if (noteContent) noteContent.value = noteToEdit.content || '';
+                if (noteCategory) noteCategory.value = noteToEdit.category || '';
             }
         } else {
             if (noteDialogTitle) noteDialogTitle.textContent = 'Add New Note';
             editingNoteId = null;
+        }
+        
+        // Refresh category select options
+        if (window.categoryManager && window.categoryManager.populateCategorySelects) {
+            window.categoryManager.populateCategorySelects();
+            
+            // If adding a new note, set the default category to the currently selected one
+            if (mode === 'add' && noteCategory && window.categoryManager.setDefaultCategoryInForm) {
+                window.categoryManager.setDefaultCategoryInForm(noteCategory);
+            }
         }
         
         // Show dialog
@@ -451,6 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
             id: Date.now().toString(),
             title: title,
             content: content,
+            category: noteCategory ? noteCategory.value : '',
             createdAt: new Date().toISOString()
         };
         
@@ -474,6 +564,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ...note,
                     title: title,
                     content: content,
+                    category: noteCategory ? noteCategory.value : note.category || '',
                     updatedAt: new Date().toISOString()
                 };
             }
@@ -510,8 +601,21 @@ document.addEventListener('DOMContentLoaded', function() {
         return date.toLocaleDateString(undefined, options);
     }
 
+    // Get filtered notes based on current category
+    function getFilteredNotes() {
+        // Filter by category (if a category is selected)
+        let categoryFiltered = [...notes];
+        
+        if (window.categoryManager && window.categoryManager.getCurrentCategory()) {
+            const currentCategory = window.categoryManager.getCurrentCategory();
+            categoryFiltered = notes.filter(note => note.category === currentCategory);
+        }
+        
+        return categoryFiltered;
+    }
+
     // Render notes to the DOM
-    function renderNotes() {
+    function renderNotes(notesToRender) {
         // Check if notesList exists
         if (!notesList) {
             console.warn('notesList element not found');
@@ -521,8 +625,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear current list
         notesList.innerHTML = '';
         
+        // Get notes based on current category
+        const filteredNotes = notesToRender || getFilteredNotes();
+        
         // Sort notes by creation date (newest first)
-        const sortedNotes = [...notes].sort((a, b) => {
+        const sortedNotes = [...filteredNotes].sort((a, b) => {
             return new Date(b.createdAt) - new Date(a.createdAt);
         });
         
@@ -530,12 +637,32 @@ document.addEventListener('DOMContentLoaded', function() {
         if (sortedNotes.length === 0) {
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'empty-list';
-            emptyMessage.textContent = 'Your notes list is empty. Add a note to get started!';
+            
+            if (notes.length === 0) {
+                emptyMessage.textContent = 'Your notes list is empty. Add a note to get started!';
+            } else {
+                const currentCategory = window.categoryManager ? window.categoryManager.getCurrentCategory() : null;
+                if (currentCategory) {
+                    const categoryName = getCategoryName(currentCategory);
+                    emptyMessage.textContent = `No notes found in category "${categoryName}".`;
+                } else {
+                    emptyMessage.textContent = 'No notes match the current filter.';
+                }
+            }
+            
             notesList.appendChild(emptyMessage);
         } else {
             sortedNotes.forEach(note => {
                 const noteItem = document.createElement('div');
                 noteItem.className = 'note-item';
+                
+                // Add category badge if note has a category
+                if (note.category) {
+                    const categoryBadge = document.createElement('span');
+                    categoryBadge.className = 'note-category';
+                    categoryBadge.textContent = getCategoryName(note.category);
+                    noteItem.appendChild(categoryBadge);
+                }
                 
                 // Create note header
                 const noteHeader = document.createElement('div');

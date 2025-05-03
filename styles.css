@@ -6,7 +6,7 @@ body{
     height: 100vh;
     margin: 0;
     padding: 0;
-    background-color: #f0f0f0;
+    background-color: #dadada;
     font-family: 'Geist', sans-serif;
 }
 
@@ -620,6 +620,277 @@ h2{
     background-color: #fce4e4;
 }
 
+.app-container {
+    display: flex;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100vh;
+}
+
+/* Sidebar Styles */
+.sidebar {
+    width: 250px;
+    margin: 50px;
+    margin-right: 0;
+    background-color: #f9f9f9;
+    border-right: 1px solid #e1e1e1;
+    display: flex;
+    flex-direction: column;
+    border-radius: 15px 0 0 15px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 15px;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.sidebar-header h3 {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 18px;
+}
+
+.manage-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: #7f8c8d;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.manage-btn:hover {
+    color: #3498db;
+    background-color: #edf2f7;
+}
+
+.sidebar-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+}
+
+.categories-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-item {
+    padding: 10px 12px;
+    margin-bottom: 5px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    color: #2c3e50;
+}
+
+.category-item:hover {
+    background-color: #edf2f7;
+}
+
+.category-item.active {
+    background-color: #b5cfe8;
+    font-weight: 500;
+}
+
+.category-icon {
+    margin-right: 10px;
+    color: inherit;
+    font-size: 14px;
+}
+
+.category-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.category-count {
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
+    color: inherit;
+}
+
+/* Adjust container to work with sidebar */
+.container {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 0 15px 15px 0;
+    margin: 50px 50px 50px 0;
+}
+
+/* Category Management Dialog Styles */
+.category-management {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.category-add-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.add-category-btn {
+    background-color: #b5cfe8;
+    border: none;
+    color: #2c3e50;
+    width: 38px;
+    height: 38px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-category-btn:hover {
+    background-color: #8ab5d6;
+}
+
+.category-management-list {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    max-height: 200px;
+    overflow-y: auto;
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+}
+
+.category-management-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #e1e1e1;
+}
+
+.category-management-item:last-child {
+    border-bottom: none;
+}
+
+.category-management-name {
+    flex: 1;
+}
+
+.delete-category-btn {
+    background: none;
+    border: none;
+    color: #e74c3c;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.delete-category-btn:hover {
+    background-color: #fce4e4;
+}
+
+/* Adjust existing styles for task items with categories */
+.task-item {
+    position: relative;
+}
+
+.task-category {
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    background-color: #b5cfe8;
+    color: #ffffff;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.task-select{
+    width: 96%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    font-family: inherit;
+}
+.note-item {
+    position: relative;
+}
+
+.note-category {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background-color: #f1c40f;
+    color: #2c3e50;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    max-width: 120px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive adjustments for sidebar */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        max-height: 250px;
+        border-right: none;
+        border-bottom: 1px solid #e1e1e1;
+    }
+    
+    .container {
+        margin: 0;
+        border-radius: 0;
+    }
+    
+    .categories-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .category-item {
+        flex-basis: calc(50% - 10px);
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        max-height: 200px;
+    }
+    
+    .category-item {
+        flex-basis: 100%;
+    }
+}
 
 /* Mobile responsiveness */
 @media (max-width: 480px) {
