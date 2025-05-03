@@ -21,22 +21,29 @@ body{
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 20px;
     margin: 50px;
+    overflow: auto;
 }
 
 .container-head{
-    display:flex;
-    justify-content: center;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     flex-direction: row;
     width: 100%;
     gap: 15px;
 }
 
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
 .container-body{
-    display:flex;
+    display: flex;
     justify-content: center;
     flex-direction: column;
     width: 100%;
+    overflow: auto;
 }
 
 h2{
@@ -44,7 +51,7 @@ h2{
     margin: 0;
 }
 
-.addTaskBtn{
+.actionBtn{
     border: none;
     background-color: transparent;
     cursor: pointer;
@@ -54,9 +61,111 @@ h2{
     border-radius: 50%;
     transition: background-color 0.3s ease;
 }
-.addTaskBtn:hover{
+
+.actionBtn:hover{
     background-color: #b5cfe8;
 }
+
+/* Tab styling */
+.tab-container {
+    display: flex;
+    width: 100%;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    color: #7f8c8d;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-bottom: 3px solid transparent;
+    font-family: 'Geist', sans-serif;
+}
+
+.tab-btn:hover {
+    color: #3498db;
+}
+
+.tab-btn.active {
+    color: #3498db;
+    border-bottom-color: #3498db;
+}
+
+.tab-content {
+    display: none;
+    width: 100%;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Notes styling */
+.notes-container {
+    width: 100%;
+}
+
+.notes-list {
+    margin-top: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.note-item {
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #fef9e7;
+    border-radius: 8px;
+    border-left: 4px solid #f1c40f;
+    transition: all 0.3s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.note-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.note-title {
+    font-weight: 600;
+    font-size: 18px;
+    color: #333;
+}
+
+.note-date {
+    font-size: 12px;
+    color: #95a5a6;
+}
+
+.note-content {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.note-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* Keep all your existing styles below */
 
 #taskList {
     list-style: none;
@@ -252,6 +361,7 @@ h2{
     border-radius: 4px;
     cursor: pointer;
     font-size: 15px;
+    font-family: inherit;
     border: none;
     transition: all 0.3s;
 }
@@ -341,4 +451,86 @@ h2{
 .filter-btn.active {
     background-color: #b5cfe8;
     color: #333;
+}
+
+/* Calendar Input Styling */
+input[type="date"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    color: #2c3e50;
+    font-family: 'Geist', sans-serif;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    width: 96%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="date"]:hover {
+    border-color: #b5cfe8;
+    background-color: #f8fafc;
+}
+
+input[type="date"]:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+/* Calendar icon styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    color: #3498db;
+    opacity: 1;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 3px;
+    transition: background 0.3s;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    background-color: #e3f2fd;
+}
+
+/* Different browsers need different approaches */
+/* For Firefox */
+input[type="date"]::-moz-calendar-picker-indicator {
+    background-color: transparent;
+}
+
+/* For Edge */
+input[type="date"]::-ms-clear {
+    display: none;
+}
+input[type="date"]::-ms-reveal {
+    display: none;
+}
+
+/* Style the actual calendar dropdown (note: limited browser support) */
+::-webkit-datetime-edit {
+    padding: 0;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+    padding: 0;
+}
+
+::-webkit-datetime-edit-text {
+    color: #7f8c8d;
+    padding: 0 2px;
+}
+
+::-webkit-datetime-edit-month-field,
+::-webkit-datetime-edit-day-field,
+::-webkit-datetime-edit-year-field {
+    color: #2c3e50;
+    padding: 0 2px;
+}
+
+::-webkit-inner-spin-button {
+    display: none;
 }

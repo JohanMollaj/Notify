@@ -1,343 +1,669 @@
-var TaskList = document.getElementById('taskList');
-const addTaskBtn = document.getElementById('addTaskBtn');
-const taskDialog = document.getElementById('taskDialog');
-const closeDialog = document.getElementById('closeDialog');
-const cancelTask = document.getElementById('cancelTask');
-const saveTask = document.getElementById('saveTask');
-const taskForm = document.getElementById('taskForm');
-const taskTitle = document.getElementById('taskTitle');
-const taskDescription = document.getElementById('taskDescription');
-const taskDueDate = document.getElementById('taskDueDate');
-const dialogTitle = document.getElementById('dialogTitle');
-const filterButtons = document.querySelectorAll('.filter-btn');
+// Wait for DOM to fully load
+document.addEventListener('DOMContentLoaded', function() {
+    // Task-related DOM elements
+    var taskList = document.getElementById('taskList');
+    const addTaskBtn = document.getElementById('addTaskBtn');
+    const taskDialog = document.getElementById('taskDialog');
+    const closeDialog = document.getElementById('closeDialog');
+    const cancelTask = document.getElementById('cancelTask');
+    const saveTask = document.getElementById('saveTask');
+    const taskForm = document.getElementById('taskForm');
+    const taskTitle = document.getElementById('taskTitle');
+    const taskDescription = document.getElementById('taskDescription');
+    const taskDueDate = document.getElementById('taskDueDate');
+    const dialogTitle = document.getElementById('dialogTitle');
+    const filterButtons = document.querySelectorAll('.filter-btn');
 
-if(TaskList.childElementCount === 0){
-    TaskList.innerHTML = '<h4>No tasks available</h4>';
-}
+    // Note-related DOM elements
+    const notesList = document.getElementById('notesList');
+    const addNoteBtn = document.getElementById('addNoteBtn');
+    const noteDialog = document.getElementById('noteDialog');
+    const closeNoteDialogBtn = document.getElementById('closeNoteDialog'); // Renamed to avoid conflict
+    const cancelNote = document.getElementById('cancelNote');
+    const saveNote = document.getElementById('saveNote');
+    const noteForm = document.getElementById('noteForm');
+    const noteTitle = document.getElementById('noteTitle');
+    const noteContent = document.getElementById('noteContent');
+    const noteDialogTitle = document.getElementById('noteDialogTitle');
 
-let tasks = [];
-let currentFilter = 'all';
-let editingTaskId = null;
+    // Tab-related DOM elements
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-function init() {
-    // Load tasks from localStorage
-    loadTasks();
-    
-    // Render initial tasks
-    renderTasks();
-    
-    // Setup event listeners
-    setupEventListeners();
-}
-function loadTasks() {
-    const storedTasks = localStorage.getItem('tasks');
-    tasks = storedTasks ? JSON.parse(storedTasks) : [];
-}
-function saveTasks() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
-}
+    // Initial check for tasks
+    if(taskList && taskList.childElementCount === 0){
+        taskList.innerHTML = '<h4>No tasks available</h4>';
+    }
 
-function openTaskDialog(mode = 'add', taskId = null) {
-    taskForm.reset();
-    
-    if (mode === 'edit' && taskId) {
-        dialogTitle.textContent = 'Edit Task';
-        editingTaskId = taskId;
-        
-        const taskToEdit = tasks.find(task => task.id === taskId);
-        
-        if (taskToEdit) {
-            taskTitle.value = taskToEdit.title;
-            taskDescription.value = taskToEdit.description || '';
-            taskDueDate.value = taskToEdit.dueDate || '';
-        }
-    } else {
-        dialogTitle.textContent = 'Add New Task';
-        editingTaskId = null;
-        
+    // State variables
+    let tasks = [];
+    let notes = [];
+    let currentFilter = 'all';
+    let editingTaskId = null;
+    let editingNoteId = null;
+
+    // Initialize date picker with today's date and improve behavior
+    if (taskDueDate) {
         const today = new Date().toISOString().split('T')[0];
         taskDueDate.value = today;
-    }
-    
-    // Show dialog
-    taskDialog.classList.add('active');
-}
-
-// Close task dialog
-function closeTaskDialog() {
-    taskDialog.classList.remove('active');
-}
-
-// Add a new task
-function addTask() {
-    const title = taskTitle.value.trim();
-    
-    if (title === '') return;
-    
-    const newTask = {
-        id: Date.now().toString(),
-        title: title,
-        description: taskDescription.value.trim(),
-        dueDate: taskDueDate.value,
-        completed: false,
-        createdAt: new Date().toISOString()
-    };
-    
-    tasks.push(newTask);
-    saveTasks();
-    renderTasks();
-    closeTaskDialog();
-}
-
-function updateTask() {
-    if (!editingTaskId) return;
-    
-    const title = taskTitle.value.trim();
-    
-    if (title === '') return;
-    
-    tasks = tasks.map(task => {
-        if (task.id === editingTaskId) {
-            return {
-                ...task,
-                title: title,
-                description: taskDescription.value.trim(),
-                dueDate: taskDueDate.value
-            };
-        }
-        return task;
-    });
-    
-    saveTasks();
-    renderTasks();
-    closeTaskDialog();
-    editingTaskId = null;
-}
-
-function deleteTask(id) {
-    // Ask for confirmation
-    if (confirm('Are you sure you want to delete this task?')) {
-        tasks = tasks.filter(task => task.id !== id);
-        saveTasks();
-        renderTasks();
-    }
-}
-
-function deleteTask(id) {
-    // Ask for confirmation
-    if (confirm('Are you sure you want to delete this task?')) {
-        tasks = tasks.filter(task => task.id !== id);
-        saveTasks();
-        renderTasks();
-    }
-}
-
-function toggleTaskStatus(id) {
-    tasks = tasks.map(task => {
-        if (task.id === id) {
-            return { ...task, completed: !task.completed };
-        }
-        return task;
-    });
-    
-    saveTasks();
-    renderTasks();
-}
-
-// Format date for display
-function formatDate(dateString) {
-    if (!dateString) return '';
-    
-    const options = { year: 'numeric', month: 'short', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-}
-
-// Set current filter
-function setFilter(filter) {
-    currentFilter = filter;
-    
-    // Update active filter button
-    filterButtons.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.filter === filter);
-    });
-    
-    renderTasks();
-}
-
-// Get filtered tasks based on current filter
-function getFilteredTasks() {
-    switch (currentFilter) {
-        case 'active':
-            return tasks.filter(task => !task.completed);
-        case 'completed':
-            return tasks.filter(task => task.completed);
-        default:
-            return tasks;
-    }
-}
-
-// Render tasks to the DOM
-function renderTasks() {
-    // Clear current list
-    taskList.innerHTML = '';
-    
-    // Get tasks based on current filter
-    const filteredTasks = getFilteredTasks();
-    
-    // Sort tasks by due date (closest first, then by creation date)
-    filteredTasks.sort((a, b) => {
-        // If both have due dates, sort by due date
-        if (a.dueDate && b.dueDate) {
-            return new Date(a.dueDate) - new Date(b.dueDate);
-        }
-        // If only one has a due date, put the one with due date first
-        if (a.dueDate) return -1;
-        if (b.dueDate) return 1;
         
-        // If neither has a due date, sort by creation date (newest first)
-        return new Date(b.createdAt) - new Date(a.createdAt);
-    });
-    
-    // Create task items
-    if (filteredTasks.length === 0) {
-        const emptyMessage = document.createElement('li');
-        emptyMessage.className = 'empty-list';
+        // Add event listener for date input focus
+        taskDueDate.addEventListener('click', function() {
+            this.showPicker();
+        });
+    }
+
+    function init() {
+        console.log('Initializing app...');
+        // Load data from localStorage
+        loadTasks();
+        loadNotes();
         
-        if (tasks.length === 0) {
-            emptyMessage.textContent = 'Your to-do list is empty. Add a task to get started!';
+        // Render initial data
+        renderTasks();
+        renderNotes();
+        
+        // Setup event listeners
+        setupEventListeners();
+    }
+
+    // Tab functionality
+    function setupTabEvents() {
+        if (!tabButtons || tabButtons.length === 0) return;
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                // Remove active class from all tabs
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                button.classList.add('active');
+                
+                // Show corresponding content
+                const tabId = button.dataset.tab;
+                const contentEl = document.getElementById(`${tabId}-content`);
+                if (contentEl) {
+                    contentEl.classList.add('active');
+                }
+            });
+        });
+    }
+
+    // Task functions
+    function loadTasks() {
+        const storedTasks = localStorage.getItem('tasks');
+        tasks = storedTasks ? JSON.parse(storedTasks) : [];
+        console.log('Loaded tasks:', tasks.length);
+    }
+
+    function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function openTaskDialog(mode = 'add', taskId = null) {
+        if (!taskForm) return;
+        
+        taskForm.reset();
+        
+        if (mode === 'edit' && taskId) {
+            if (dialogTitle) dialogTitle.textContent = 'Edit Task';
+            editingTaskId = taskId;
+            
+            const taskToEdit = tasks.find(task => task.id === taskId);
+            
+            if (taskToEdit) {
+                if (taskTitle) taskTitle.value = taskToEdit.title;
+                if (taskDescription) taskDescription.value = taskToEdit.description || '';
+                if (taskDueDate) taskDueDate.value = taskToEdit.dueDate || '';
+            }
         } else {
-            emptyMessage.textContent = `No ${currentFilter} tasks found.`;
+            if (dialogTitle) dialogTitle.textContent = 'Add New Task';
+            editingTaskId = null;
+            
+            if (taskDueDate) {
+                const today = new Date().toISOString().split('T')[0];
+                taskDueDate.value = today;
+            }
         }
         
-        taskList.appendChild(emptyMessage);
-    } else {
-        filteredTasks.forEach(task => {
-            const taskItem = document.createElement('li');
-            taskItem.className = 'task-item';
-            if (task.completed) {
-                taskItem.classList.add('completed');
+        // Show dialog
+        if (taskDialog) taskDialog.classList.add('active');
+    }
+
+    // Close task dialog
+    function closeTaskDialog() {
+        if (taskDialog) taskDialog.classList.remove('active');
+    }
+
+    // Add a new task
+    function addTask() {
+        if (!taskTitle) return;
+        
+        const title = taskTitle.value.trim();
+        
+        if (title === '') return;
+        
+        const newTask = {
+            id: Date.now().toString(),
+            title: title,
+            description: taskDescription ? taskDescription.value.trim() : '',
+            dueDate: taskDueDate ? taskDueDate.value : '',
+            completed: false,
+            createdAt: new Date().toISOString()
+        };
+        
+        tasks.push(newTask);
+        saveTasks();
+        renderTasks();
+        closeTaskDialog();
+    }
+
+    function updateTask() {
+        if (!editingTaskId || !taskTitle) return;
+        
+        const title = taskTitle.value.trim();
+        
+        if (title === '') return;
+        
+        tasks = tasks.map(task => {
+            if (task.id === editingTaskId) {
+                return {
+                    ...task,
+                    title: title,
+                    description: taskDescription ? taskDescription.value.trim() : task.description,
+                    dueDate: taskDueDate ? taskDueDate.value : task.dueDate
+                };
+            }
+            return task;
+        });
+        
+        saveTasks();
+        renderTasks();
+        closeTaskDialog();
+        editingTaskId = null;
+    }
+
+    function deleteTask(id) {
+        // Ask for confirmation
+        if (confirm('Are you sure you want to delete this task?')) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+    }
+
+    function toggleTaskStatus(id) {
+        tasks = tasks.map(task => {
+            if (task.id === id) {
+                return { ...task, completed: !task.completed };
+            }
+            return task;
+        });
+        
+        saveTasks();
+        renderTasks();
+    }
+
+    // Format date for display
+    function formatDate(dateString) {
+        if (!dateString) return '';
+        
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+
+    // Set current filter
+    function setFilter(filter) {
+        currentFilter = filter;
+        
+        // Update active filter button
+        if (filterButtons) {
+            filterButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+        }
+        
+        renderTasks();
+    }
+
+    // Get filtered tasks based on current filter
+    function getFilteredTasks() {
+        switch (currentFilter) {
+            case 'active':
+                return tasks.filter(task => !task.completed);
+            case 'completed':
+                return tasks.filter(task => task.completed);
+            default:
+                return tasks;
+        }
+    }
+
+    // Render tasks to the DOM
+    function renderTasks() {
+        // Check if taskList exists
+        if (!taskList) {
+            console.warn('taskList element not found');
+            return;
+        }
+        
+        // Clear current list
+        taskList.innerHTML = '';
+        
+        // Get tasks based on current filter
+        const filteredTasks = getFilteredTasks();
+        
+        // Sort tasks by due date (closest first, then by creation date)
+        filteredTasks.sort((a, b) => {
+            // If both have due dates, sort by due date
+            if (a.dueDate && b.dueDate) {
+                return new Date(a.dueDate) - new Date(b.dueDate);
+            }
+            // If only one has a due date, put the one with due date first
+            if (a.dueDate) return -1;
+            if (b.dueDate) return 1;
+            
+            // If neither has a due date, sort by creation date (newest first)
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        
+        // Create task items
+        if (filteredTasks.length === 0) {
+            const emptyMessage = document.createElement('li');
+            emptyMessage.className = 'empty-list';
+            
+            if (tasks.length === 0) {
+                emptyMessage.textContent = 'Your to-do list is empty. Add a task to get started!';
+            } else {
+                emptyMessage.textContent = `No ${currentFilter} tasks found.`;
             }
             
-            // Create task content
-            const taskContent = document.createElement('div');
-            taskContent.className = 'task-content';
-            
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.className = 'task-checkbox';
-            checkbox.checked = task.completed;
-            checkbox.addEventListener('change', () => toggleTaskStatus(task.id));
-            
-            const taskText = document.createElement('div');
-            taskText.className = 'task-text';
-            
-            const taskTextTitle = document.createElement('div');
-            taskTextTitle.textContent = task.title;
-            taskText.appendChild(taskTextTitle);
-            
-            if (task.description) {
-                const taskTextDesc = document.createElement('div');
-                taskTextDesc.textContent = task.description;
-                taskTextDesc.style.fontSize = '12px';
-                taskTextDesc.style.color = '#7f8c8d';
-                taskTextDesc.style.marginTop = '3px';
-                taskText.appendChild(taskTextDesc);
-            }
-            
-            if (task.dueDate) {
-                const taskDate = document.createElement('span');
-                taskDate.className = 'task-date';
-                taskDate.innerHTML = `<i class="fa-regular fa-calendar"></i> ${formatDate(task.dueDate)}`;
-                
-                // Check if task is overdue
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                const dueDate = new Date(task.dueDate);
-                dueDate.setHours(0, 0, 0, 0);
-                
-                if (dueDate < today && !task.completed) {
-                    taskDate.style.color = '#e74c3c';
+            taskList.appendChild(emptyMessage);
+        } else {
+            filteredTasks.forEach(task => {
+                const taskItem = document.createElement('li');
+                taskItem.className = 'task-item';
+                if (task.completed) {
+                    taskItem.classList.add('completed');
                 }
                 
-                taskText.appendChild(taskDate);
-            }
-            
-            taskContent.appendChild(checkbox);
-            taskContent.appendChild(taskText);
-            
-            // Create task actions
-            const taskActions = document.createElement('div');
-            taskActions.className = 'task-actions';
-            
-            const editBtn = document.createElement('button');
-            editBtn.className = 'edit-btn';
-            editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-            editBtn.addEventListener('click', () => openTaskDialog('edit', task.id));
-            
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-btn';
-            deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
-            deleteBtn.addEventListener('click', () => deleteTask(task.id));
-            
-            taskActions.appendChild(editBtn);
-            taskActions.appendChild(deleteBtn);
-            
-            // Assemble task item
-            taskItem.appendChild(taskContent);
-            taskItem.appendChild(taskActions);
-            
-            // Add to list
-            taskList.appendChild(taskItem);
-        });
+                // Create task content
+                const taskContent = document.createElement('div');
+                taskContent.className = 'task-content';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'task-checkbox';
+                checkbox.checked = task.completed;
+                checkbox.addEventListener('change', () => toggleTaskStatus(task.id));
+                
+                const taskText = document.createElement('div');
+                taskText.className = 'task-text';
+                
+                const taskTextTitle = document.createElement('div');
+                taskTextTitle.textContent = task.title;
+                taskText.appendChild(taskTextTitle);
+                
+                if (task.description) {
+                    const taskTextDesc = document.createElement('div');
+                    taskTextDesc.textContent = task.description;
+                    taskTextDesc.style.fontSize = '12px';
+                    taskTextDesc.style.color = '#7f8c8d';
+                    taskTextDesc.style.marginTop = '3px';
+                    taskText.appendChild(taskTextDesc);
+                }
+                
+                if (task.dueDate) {
+                    const taskDate = document.createElement('span');
+                    taskDate.className = 'task-date';
+                    taskDate.innerHTML = `<i class="fa-regular fa-calendar"></i> ${formatDate(task.dueDate)}`;
+                    
+                    // Check if task is overdue
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    const dueDate = new Date(task.dueDate);
+                    dueDate.setHours(0, 0, 0, 0);
+                    
+                    if (dueDate < today && !task.completed) {
+                        taskDate.style.color = '#e74c3c';
+                    }
+                    
+                    taskText.appendChild(taskDate);
+                }
+                
+                taskContent.appendChild(checkbox);
+                taskContent.appendChild(taskText);
+                
+                // Create task actions
+                const taskActions = document.createElement('div');
+                taskActions.className = 'task-actions';
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-btn';
+                editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                editBtn.addEventListener('click', () => openTaskDialog('edit', task.id));
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                deleteBtn.addEventListener('click', () => deleteTask(task.id));
+                
+                taskActions.appendChild(editBtn);
+                taskActions.appendChild(deleteBtn);
+                
+                // Assemble task item
+                taskItem.appendChild(taskContent);
+                taskItem.appendChild(taskActions);
+                
+                // Add to list
+                taskList.appendChild(taskItem);
+            });
+        }
     }
-}
 
-// Setup all event listeners
-function setupEventListeners() {
-    // Open dialog on add button click
-    addTaskBtn.addEventListener('click', () => openTaskDialog());
-    
-    // Close dialog on close button click
-    closeDialog.addEventListener('click', closeTaskDialog);
-    
-    // Close dialog on cancel button click
-    cancelTask.addEventListener('click', closeTaskDialog);
-    
-    // Save task on save button click
-    saveTask.addEventListener('click', () => {
-        if (editingTaskId) {
-            updateTask();
-        } else {
-            addTask();
+    // Notes functions
+    function loadNotes() {
+        const storedNotes = localStorage.getItem('notes');
+        notes = storedNotes ? JSON.parse(storedNotes) : [];
+        console.log('Loaded notes:', notes.length);
+    }
+
+    function saveNotes() {
+        localStorage.setItem('notes', JSON.stringify(notes));
+    }
+
+    function openNoteDialog(mode = 'add', noteId = null) {
+        if (!noteForm) {
+            console.warn('noteForm element not found');
+            return;
         }
-    });
-    
-    // Close dialog when clicking outside
-    taskDialog.addEventListener('click', (e) => {
-        if (e.target === taskDialog) {
-            closeTaskDialog();
-        }
-    });
-    
-    // Submit form on Enter key press
-    taskForm.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (editingTaskId) {
-                updateTask();
-            } else {
-                addTask();
+        
+        noteForm.reset();
+        
+        if (mode === 'edit' && noteId) {
+            if (noteDialogTitle) noteDialogTitle.textContent = 'Edit Note';
+            editingNoteId = noteId;
+            
+            const noteToEdit = notes.find(note => note.id === noteId);
+            
+            if (noteToEdit) {
+                if (noteTitle) noteTitle.value = noteToEdit.title;
+                if (noteContent) noteContent.value = noteToEdit.content || '';
             }
+        } else {
+            if (noteDialogTitle) noteDialogTitle.textContent = 'Add New Note';
+            editingNoteId = null;
         }
-    });
-    
-    // Filter buttons
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            setFilter(btn.dataset.filter);
-        });
-    });
-}
+        
+        // Show dialog
+        if (noteDialog) noteDialog.classList.add('active');
+    }
 
-// Initialize the app
-init();
+    function closeNoteDialog() {
+        if (noteDialog) noteDialog.classList.remove('active');
+    }
+
+    function addNote() {
+        if (!noteTitle || !noteContent) {
+            console.warn('noteTitle or noteContent elements not found');
+            return;
+        }
+        
+        const title = noteTitle.value.trim();
+        const content = noteContent.value.trim();
+        
+        if (title === '' || content === '') return;
+        
+        const newNote = {
+            id: Date.now().toString(),
+            title: title,
+            content: content,
+            createdAt: new Date().toISOString()
+        };
+        
+        notes.push(newNote);
+        saveNotes();
+        renderNotes();
+        closeNoteDialog();
+    }
+
+    function updateNote() {
+        if (!editingNoteId || !noteTitle || !noteContent) return;
+        
+        const title = noteTitle.value.trim();
+        const content = noteContent.value.trim();
+        
+        if (title === '' || content === '') return;
+        
+        notes = notes.map(note => {
+            if (note.id === editingNoteId) {
+                return {
+                    ...note,
+                    title: title,
+                    content: content,
+                    updatedAt: new Date().toISOString()
+                };
+            }
+            return note;
+        });
+        
+        saveNotes();
+        renderNotes();
+        closeNoteDialog();
+        editingNoteId = null;
+    }
+
+    function deleteNote(id) {
+        // Ask for confirmation
+        if (confirm('Are you sure you want to delete this note?')) {
+            notes = notes.filter(note => note.id !== id);
+            saveNotes();
+            renderNotes();
+        }
+    }
+
+    // Format timestamp for display
+    function formatTimestamp(dateString) {
+        if (!dateString) return '';
+        
+        const date = new Date(dateString);
+        const options = { 
+            year: 'numeric', 
+            month: 'short', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return date.toLocaleDateString(undefined, options);
+    }
+
+    // Render notes to the DOM
+    function renderNotes() {
+        // Check if notesList exists
+        if (!notesList) {
+            console.warn('notesList element not found');
+            return;
+        }
+        
+        // Clear current list
+        notesList.innerHTML = '';
+        
+        // Sort notes by creation date (newest first)
+        const sortedNotes = [...notes].sort((a, b) => {
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+        
+        // Create note items
+        if (sortedNotes.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'empty-list';
+            emptyMessage.textContent = 'Your notes list is empty. Add a note to get started!';
+            notesList.appendChild(emptyMessage);
+        } else {
+            sortedNotes.forEach(note => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+                
+                // Create note header
+                const noteHeader = document.createElement('div');
+                noteHeader.className = 'note-header';
+                
+                const noteItemTitle = document.createElement('div');
+                noteItemTitle.className = 'note-title';
+                noteItemTitle.textContent = note.title;
+                
+                const noteDate = document.createElement('div');
+                noteDate.className = 'note-date';
+                
+                const timestamp = note.updatedAt ? 
+                    `Updated: ${formatTimestamp(note.updatedAt)}` : 
+                    `Created: ${formatTimestamp(note.createdAt)}`;
+                
+                noteDate.textContent = timestamp;
+                
+                noteHeader.appendChild(noteItemTitle);
+                noteHeader.appendChild(noteDate);
+                
+                // Create note content
+                const noteItemContent = document.createElement('div');
+                noteItemContent.className = 'note-content';
+                noteItemContent.textContent = note.content;
+                
+                // Create note actions
+                const noteActions = document.createElement('div');
+                noteActions.className = 'note-actions';
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-btn';
+                editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+                editBtn.title = 'Edit';
+                editBtn.addEventListener('click', () => openNoteDialog('edit', note.id));
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '<i class="fa-solid fa-trash"></i>';
+                deleteBtn.title = 'Delete';
+                deleteBtn.addEventListener('click', () => deleteNote(note.id));
+                
+                noteActions.appendChild(editBtn);
+                noteActions.appendChild(deleteBtn);
+                
+                // Assemble note item
+                noteItem.appendChild(noteHeader);
+                noteItem.appendChild(noteItemContent);
+                noteItem.appendChild(noteActions);
+                
+                // Add to list
+                notesList.appendChild(noteItem);
+            });
+        }
+    }
+
+    // Setup all event listeners
+    function setupEventListeners() {
+        console.log('Setting up event listeners...');
+        
+        // Set up tab switching
+        setupTabEvents();
+        
+        // Task-related event listeners
+        if (addTaskBtn) {
+            addTaskBtn.addEventListener('click', () => openTaskDialog());
+        }
+        
+        if (closeDialog) {
+            closeDialog.addEventListener('click', closeTaskDialog);
+        }
+        
+        if (cancelTask) {
+            cancelTask.addEventListener('click', closeTaskDialog);
+        }
+        
+        if (saveTask) {
+            saveTask.addEventListener('click', () => {
+                if (editingTaskId) {
+                    updateTask();
+                } else {
+                    addTask();
+                }
+            });
+        }
+        
+        if (taskDialog) {
+            taskDialog.addEventListener('click', (e) => {
+                if (e.target === taskDialog) {
+                    closeTaskDialog();
+                }
+            });
+        }
+        
+        if (taskForm) {
+            taskForm.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    if (editingTaskId) {
+                        updateTask();
+                    } else {
+                        addTask();
+                    }
+                }
+            });
+        }
+        
+        // Filter buttons
+        if (filterButtons) {
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setFilter(btn.dataset.filter);
+                });
+            });
+        }
+        
+        // Note-related event listeners
+        if (addNoteBtn) {
+            addNoteBtn.addEventListener('click', () => openNoteDialog());
+        }
+        
+        if (closeNoteDialogBtn) { // Using the renamed variable
+            closeNoteDialogBtn.addEventListener('click', closeNoteDialog);
+        }
+        
+        if (cancelNote) {
+            cancelNote.addEventListener('click', closeNoteDialog);
+        }
+        
+        if (saveNote) {
+            saveNote.addEventListener('click', () => {
+                if (editingNoteId) {
+                    updateNote();
+                } else {
+                    addNote();
+                }
+            });
+        }
+        
+        if (noteDialog) {
+            noteDialog.addEventListener('click', (e) => {
+                if (e.target === noteDialog) {
+                    closeNoteDialog();
+                }
+            });
+        }
+        
+        if (noteForm) {
+            noteForm.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey && e.target.id !== 'noteContent') {
+                    e.preventDefault();
+                    if (editingNoteId) {
+                        updateNote();
+                    } else {
+                        addNote();
+                    }
+                }
+            });
+        }
+    }
+
+    // Initialize the app
+    init();
+});
