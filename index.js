@@ -115,13 +115,30 @@ document.addEventListener('DOMContentLoaded', function() {
             if (taskToEdit) {
                 if (taskTitle) taskTitle.value = taskToEdit.title;
                 if (taskDescription) taskDescription.value = taskToEdit.description || '';
-                if (taskDueDate) taskDueDate.value = taskToEdit.dueDate || '';
+                
+                // Update the custom calendar if it exists
+                if (window.customCalendar) {
+                    if (taskToEdit.dueDate) {
+                        window.customCalendar.setValue(taskToEdit.dueDate);
+                    } else {
+                        window.customCalendar.clearDate();
+                    }
+                } else if (taskDueDate) {
+                    // Fallback to the standard date input
+                    taskDueDate.value = taskToEdit.dueDate || '';
+                }
             }
         } else {
             if (dialogTitle) dialogTitle.textContent = 'Add New Task';
             editingTaskId = null;
             
-            if (taskDueDate) {
+            // Set default date for new tasks in the calendar
+            if (window.customCalendar) {
+                const today = new Date().toISOString().split('T')[0];
+                window.customCalendar.setValue(today);
+                // Uncomment the line below if you want new tasks to have no date by default
+                // window.customCalendar.clearDate();
+            } else if (taskDueDate) {
                 const today = new Date().toISOString().split('T')[0];
                 taskDueDate.value = today;
             }
@@ -129,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Show dialog
         if (taskDialog) taskDialog.classList.add('active');
-    }
+    }    
 
     // Close task dialog
     function closeTaskDialog() {
@@ -144,11 +161,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (title === '') return;
         
+        // Get date from custom calendar if available, otherwise use original input
+        let dueDate = '';
+        if (window.customCalendar) {
+            dueDate = window.customCalendar.getValue();
+        } else if (taskDueDate) {
+            dueDate = taskDueDate.value;
+        }
+        
         const newTask = {
             id: Date.now().toString(),
             title: title,
             description: taskDescription ? taskDescription.value.trim() : '',
-            dueDate: taskDueDate ? taskDueDate.value : '',
+            dueDate: dueDate,
             completed: false,
             createdAt: new Date().toISOString()
         };
@@ -166,13 +191,21 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (title === '') return;
         
+        // Get date from custom calendar if available, otherwise use original input
+        let dueDate = '';
+        if (window.customCalendar) {
+            dueDate = window.customCalendar.getValue();
+        } else if (taskDueDate) {
+            dueDate = taskDueDate.value;
+        }
+        
         tasks = tasks.map(task => {
             if (task.id === editingTaskId) {
                 return {
                     ...task,
                     title: title,
                     description: taskDescription ? taskDescription.value.trim() : task.description,
-                    dueDate: taskDueDate ? taskDueDate.value : task.dueDate
+                    dueDate: dueDate
                 };
             }
             return task;

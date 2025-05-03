@@ -453,84 +453,179 @@ h2{
     color: #333;
 }
 
-/* Calendar Input Styling */
-input[type="date"] {
+/* Custom Calendar Styling */
+.calendar-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.date-input-container {
+    position: relative;
+    width: 100%;
+}
+
+.custom-date-input {
     appearance: none;
     -webkit-appearance: none;
-    -moz-appearance: none;
-    color: #2c3e50;
-    font-family: 'Geist', sans-serif;
-    font-size: 16px;
+    width: calc(100% - 20px);
+    padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
-    padding: 10px;
+    font-family: 'Geist', sans-serif;
+    font-size: 16px;
+    cursor: pointer;
     background-color: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    width: 96%;
-    cursor: pointer;
-    transition: all 0.3s ease;
 }
 
-input[type="date"]:hover {
-    border-color: #b5cfe8;
-    background-color: #f8fafc;
-}
-
-input[type="date"]:focus {
+.custom-date-input:focus {
     outline: none;
     border-color: #3498db;
     box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
 }
 
-/* Calendar icon styling */
-input[type="date"]::-webkit-calendar-picker-indicator {
-    color: #3498db;
-    opacity: 1;
-    cursor: pointer;
-    padding: 4px;
-    border-radius: 3px;
-    transition: background 0.3s;
-}
-
-input[type="date"]::-webkit-calendar-picker-indicator:hover {
-    background-color: #e3f2fd;
-}
-
-/* Different browsers need different approaches */
-/* For Firefox */
-input[type="date"]::-moz-calendar-picker-indicator {
-    background-color: transparent;
-}
-
-/* For Edge */
-input[type="date"]::-ms-clear {
-    display: none;
-}
-input[type="date"]::-ms-reveal {
-    display: none;
-}
-
-/* Style the actual calendar dropdown (note: limited browser support) */
-::-webkit-datetime-edit {
-    padding: 0;
-}
-
-::-webkit-datetime-edit-fields-wrapper {
-    padding: 0;
-}
-
-::-webkit-datetime-edit-text {
+.calendar-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
     color: #7f8c8d;
-    padding: 0 2px;
+    pointer-events: none;
 }
 
-::-webkit-datetime-edit-month-field,
-::-webkit-datetime-edit-day-field,
-::-webkit-datetime-edit-year-field {
-    color: #2c3e50;
-    padding: 0 2px;
-}
-
-::-webkit-inner-spin-button {
+.calendar-dropdown {
     display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    font-family: 'Geist', sans-serif;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+.calendar-dropdown.active {
+    display: block;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.month-year {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.calendar-nav {
+    display: flex;
+    gap: 8px;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #7f8c8d;
+    transition: all 0.2s;
+}
+
+.nav-btn:hover {
+    background-color: #f1f1f1;
+    color: #2c3e50;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+
+.weekday {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 500;
+    color: #7f8c8d;
+    padding: 6px 0;
+}
+
+.day {
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    font-size: 14px;
+    color: #2c3e50;
+}
+
+.day:hover {
+    background-color: #f1f1f1;
+}
+
+.day.out-of-month {
+    color: #bdc3c7;
+}
+
+.day.today {
+    font-weight: 600;
+    color: #3498db;
+}
+
+.day.selected {
+    background-color: #2c3e50;
+    color: white;
+    font-weight: 600;
+}
+
+.day.selected:hover {
+    background-color: #34495e;
+}
+
+.calendar-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid #eee;
+}
+
+.clear-date-btn {
+    background: none;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #e74c3c;
+    transition: all 0.2s;
+    font-family: 'Geist', sans-serif;
+}
+
+.clear-date-btn:hover {
+    background-color: #fce4e4;
+}
+
+
+/* Mobile responsiveness */
+@media (max-width: 480px) {
+    .calendar-dropdown {
+        width: 280px;
+        left: 50%;
+        transform: translateX(-50%);
+    }
 }
