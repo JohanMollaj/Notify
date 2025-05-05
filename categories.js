@@ -1,6 +1,7 @@
 /**
  * Category Management for Productivity App
  * Handles categories for both tasks and notes
+ * With icon selection functionality
  */
 document.addEventListener('DOMContentLoaded', function() {
     // Category-related DOM elements
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const newCategoryName = document.getElementById('newCategoryName');
     const addCategoryBtn = document.getElementById('addCategoryBtn');
     const categoryManagementList = document.getElementById('categoryManagementList');
+    const iconSelector = document.getElementById('iconSelector');
     
     // Task and Note category select elements
     const taskCategorySelect = document.getElementById('taskCategory');
@@ -22,14 +24,95 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentCategory = null;
     let taskListRef = document.getElementById('taskList');
     let notesListRef = document.getElementById('notesList');
+    let selectedIcon = 'fa-folder'; // Default icon
+    
+    // Available icons for categories
+    const availableIcons = [
+        { name: 'Folder', icon: 'fa-folder' },
+        { name: 'Tag', icon: 'fa-tag' },
+        { name: 'Bookmark', icon: 'fa-bookmark' },
+        { name: 'Star', icon: 'fa-star' },
+        { name: 'Flag', icon: 'fa-flag' },
+        { name: 'Circle', icon: 'fa-circle' },
+        { name: 'Heart', icon: 'fa-heart' },
+        { name: 'Cube', icon: 'fa-cube' },
+        { name: 'Gem', icon: 'fa-gem' },
+        { name: 'Home', icon: 'fa-home' },
+        { name: 'Building', icon: 'fa-building' },
+        { name: 'Car', icon: 'fa-car' },
+        { name: 'Plane', icon: 'fa-plane' },
+        { name: 'Book', icon: 'fa-book' },
+        { name: 'Graduation Cap', icon: 'fa-graduation-cap' },
+        { name: 'Briefcase', icon: 'fa-briefcase' },
+        { name: 'Shopping Bag', icon: 'fa-shopping-bag' },
+        { name: 'Money', icon: 'fa-money-bill' },
+        { name: 'Calendar', icon: 'fa-calendar' },
+        { name: 'Clock', icon: 'fa-clock' },
+        { name: 'User', icon: 'fa-user' }
+    ];
     
     // Initialize
     function init() {
         console.log('Initializing categories...');
         loadCategories();
+        createIconSelector();
         renderCategorySidebar();
         populateCategorySelects();
         setupEventListeners();
+    }
+    
+    // Create icon selector UI
+    function createIconSelector() {
+        if (!iconSelector) {
+            console.warn('Icon selector element not found, creating one');
+            
+            // Create the icon selector container if it doesn't exist
+            const iconSelectorContainer = document.createElement('div');
+            iconSelectorContainer.className = 'icon-selector-container';
+            iconSelectorContainer.id = 'iconSelector';
+            
+            // Find the form element that contains the new category input
+            const formGroup = newCategoryName.closest('.form-group');
+            if (formGroup) {
+                // Create a label for the icon selector
+                const iconLabel = document.createElement('label');
+                iconLabel.textContent = 'Select an Icon';
+                
+                // Insert the label and selector after the existing form group
+                formGroup.parentNode.insertBefore(iconLabel, formGroup.nextSibling);
+                formGroup.parentNode.insertBefore(iconSelectorContainer, formGroup.nextSibling.nextSibling);
+                
+                // Update the reference
+                iconSelector = iconSelectorContainer;
+            }
+        }
+        
+        // Clear any existing icons
+        iconSelector.innerHTML = '';
+        
+        // Create icon grid
+        availableIcons.forEach(iconItem => {
+            const iconElement = document.createElement('div');
+            iconElement.className = 'icon-option' + (iconItem.icon === selectedIcon ? ' selected' : '');
+            iconElement.setAttribute('data-icon', iconItem.icon);
+            iconElement.innerHTML = `<i class="fa-solid ${iconItem.icon}" title="${iconItem.name}"></i>`;
+            
+            // Add click event to select icon
+            iconElement.addEventListener('click', () => {
+                // Remove selected class from all icons
+                document.querySelectorAll('.icon-option').forEach(icon => {
+                    icon.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked icon
+                iconElement.classList.add('selected');
+                
+                // Update selected icon
+                selectedIcon = iconItem.icon;
+            });
+            
+            iconSelector.appendChild(iconElement);
+        });
     }
     
     // Load categories from localStorage
@@ -187,6 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Open category management dialog
     function openCategoryDialog() {
         renderCategoryManagementList();
+        createIconSelector(); // Ensure icon selector is created and updated
         if (categoryDialog) categoryDialog.classList.add('active');
     }
     
@@ -210,14 +294,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 <span class="category-management-name">
                     <i class="fa-solid ${category.icon}"></i> ${category.name}
                 </span>
-                <button class="delete-category-btn" data-id="${category.id}">
-                    <i class="fa-solid fa-trash"></i>
-                </button>
+                <div class="category-management-actions">
+                    <button class="edit-category-icon-btn" data-id="${category.id}" title="Change Icon">
+                        <i class="fa-solid fa-palette"></i>
+                    </button>
+                    <button class="delete-category-btn" data-id="${category.id}" title="Delete Category">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             `;
             categoryManagementList.appendChild(categoryItem);
         });
         
-        // Add event listeners to delete buttons
+        // Add event listeners to buttons
         const deleteButtons = categoryManagementList.querySelectorAll('.delete-category-btn');
         deleteButtons.forEach(btn => {
             btn.addEventListener('click', function() {
@@ -225,6 +314,114 @@ document.addEventListener('DOMContentLoaded', function() {
                 deleteCategory(categoryId);
             });
         });
+        
+        // Add event listeners to edit icon buttons
+        const editIconButtons = categoryManagementList.querySelectorAll('.edit-category-icon-btn');
+        editIconButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const categoryId = this.getAttribute('data-id');
+                openIconSelectorForCategory(categoryId);
+            });
+        });
+    }
+    
+    // Open icon selector modal for a specific category
+    function openIconSelectorForCategory(categoryId) {
+        // Find the category
+        const category = categories.find(cat => cat.id === categoryId);
+        if (!category) return;
+        
+        // Create modal for icon selection
+        const modal = document.createElement('div');
+        modal.className = 'icon-selector-modal';
+        
+        // Create modal content
+        modal.innerHTML = `
+            <div class="icon-selector-modal-content">
+                <div class="icon-selector-modal-header">
+                    <h4>Select Icon for "${category.name}"</h4>
+                    <button class="close-icon-selector-modal">&times;</button>
+                </div>
+                <div class="icon-selector-modal-body">
+                    <div class="icon-grid" id="categoryIconGrid"></div>
+                </div>
+                <div class="icon-selector-modal-footer">
+                    <button class="cancel-icon-selection">Cancel</button>
+                    <button class="save-icon-selection">Save</button>
+                </div>
+            </div>
+        `;
+        
+        // Add modal to body
+        document.body.appendChild(modal);
+        
+        // Populate icon grid
+        const iconGrid = modal.querySelector('#categoryIconGrid');
+        let tempSelectedIcon = category.icon;
+        
+        availableIcons.forEach(iconItem => {
+            const iconElement = document.createElement('div');
+            iconElement.className = 'icon-option' + (iconItem.icon === category.icon ? ' selected' : '');
+            iconElement.setAttribute('data-icon', iconItem.icon);
+            iconElement.innerHTML = `<i class="fa-solid ${iconItem.icon}" title="${iconItem.name}"></i>`;
+            
+            // Add click event to select icon
+            iconElement.addEventListener('click', () => {
+                // Remove selected class from all icons
+                iconGrid.querySelectorAll('.icon-option').forEach(icon => {
+                    icon.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked icon
+                iconElement.classList.add('selected');
+                
+                // Update temp selected icon
+                tempSelectedIcon = iconItem.icon;
+            });
+            
+            iconGrid.appendChild(iconElement);
+        });
+        
+        // Add event listeners to modal buttons
+        modal.querySelector('.close-icon-selector-modal').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.querySelector('.cancel-icon-selection').addEventListener('click', () => {
+            document.body.removeChild(modal);
+        });
+        
+        modal.querySelector('.save-icon-selection').addEventListener('click', () => {
+            // Update category icon
+            updateCategoryIcon(categoryId, tempSelectedIcon);
+            document.body.removeChild(modal);
+        });
+        
+        // Close when clicking outside the modal content
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                document.body.removeChild(modal);
+            }
+        });
+        
+        // Show modal with animation
+        setTimeout(() => {
+            modal.classList.add('active');
+        }, 10);
+    }
+    
+    // Update a category's icon
+    function updateCategoryIcon(categoryId, newIcon) {
+        categories = categories.map(category => {
+            if (category.id === categoryId) {
+                return { ...category, icon: newIcon };
+            }
+            return category;
+        });
+        
+        saveCategories();
+        renderCategoryManagementList();
+        renderCategorySidebar();
     }
     
     // Add a new category
@@ -240,27 +437,25 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Create a new category with a random icon
-        const icons = ['fa-folder', 'fa-tag', 'fa-bookmark', 'fa-star', 'fa-flag', 
-                       'fa-circle', 'fa-heart', 'fa-cube', 'fa-gem'];
-        const randomIcon = icons[Math.floor(Math.random() * icons.length)];
-        
+        // Create a new category with the selected icon
         const newCategory = {
             id: 'cat_' + Date.now(),
             name: name,
-            icon: randomIcon
+            icon: selectedIcon
         };
         
         categories.push(newCategory);
         saveCategories();
         
-        // Clear input field
+        // Clear input field and reset selected icon
         newCategoryName.value = '';
+        selectedIcon = 'fa-folder';
         
         // Update UI
         renderCategoryManagementList();
         renderCategorySidebar();
         populateCategorySelects();
+        createIconSelector(); // Reset icon selection UI
     }
     
     // Delete a category

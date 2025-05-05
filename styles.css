@@ -863,6 +863,198 @@ h2{
     text-overflow: ellipsis;
 }
 
+/* Icon Selector Styling */
+.icon-selector-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 15px;
+    max-height: 160px;
+    overflow-y: auto;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #e1e1e1;
+}
+
+.icon-option {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: white;
+    border: 1px solid #e1e1e1;
+}
+
+.icon-option:hover {
+    background-color: #edf2f7;
+    transform: scale(1.05);
+}
+
+.icon-option.selected {
+    background-color: #b5cfe8;
+    border-color: #3498db;
+}
+
+.icon-option i {
+    font-size: 16px;
+    color: #2c3e50;
+}
+
+.icon-option.selected i {
+    color: #2c3e50;
+}
+
+/* Edit icon button in category management */
+.category-management-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-category-icon-btn {
+    background: none;
+    border: none;
+    color: #3498db;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.edit-category-icon-btn:hover {
+    background-color: #edf2f7;
+}
+
+/* Icon Selector Modal */
+.icon-selector-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+}
+
+.icon-selector-modal.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.icon-selector-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px);
+    transition: all 0.3s;
+}
+
+.icon-selector-modal.active .icon-selector-modal-content {
+    transform: translateY(0);
+}
+
+.icon-selector-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.icon-selector-modal-header h4 {
+    margin: 0;
+    color: #2c3e50;
+}
+
+.close-icon-selector-modal {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #7f8c8d;
+}
+
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.icon-selector-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.cancel-icon-selection, .save-icon-selection {
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    border: none;
+    transition: all 0.3s;
+    font-family: inherit;
+}
+
+.cancel-icon-selection {
+    background-color: #eee;
+    color: #333;
+}
+
+.save-icon-selection {
+    background-color: #b5cfe8;
+    color: #333;
+}
+
+.cancel-icon-selection:hover {
+    background-color: #ddd;
+}
+
+.save-icon-selection:hover {
+    background-color: #8ab5d6;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .icon-selector-container {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    
+    .icon-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .icon-selector-container {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .icon-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 /* Responsive adjustments for sidebar */
 @media (max-width: 768px) {
     .app-container {
