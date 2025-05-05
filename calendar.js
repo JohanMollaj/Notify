@@ -2,6 +2,7 @@
  * Custom Calendar Implementation for To-Do App
  * Inspired by shadcn UI Calendar Component
  * With added Clear Date functionality
+ * Modified to show calendar to the side and improve click behavior
  */
 class CustomCalendar {
     constructor(inputElement) {
@@ -78,8 +79,11 @@ class CustomCalendar {
         this.calendarDropdown = tempDiv.firstChild;
         this.calendarWrapper.appendChild(this.calendarDropdown);
         
-        // Set up event listeners
-        clonedInput.addEventListener('click', () => this.toggleCalendar());
+        // Set up event listeners - MODIFIED: directly on the input itself
+        clonedInput.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleCalendar();
+        });
         
         // Set up event listeners for navigation
         const prevMonthBtn = this.calendarDropdown.querySelector('.prev-month');
@@ -87,11 +91,13 @@ class CustomCalendar {
         
         prevMonthBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation(); // Prevent event bubbling
             this.navigateMonth(-1);
         });
         
         nextMonthBtn.addEventListener('click', (e) => {
             e.preventDefault();
+            e.stopPropagation(); // Prevent event bubbling
             this.navigateMonth(1);
         });
         
@@ -108,6 +114,11 @@ class CustomCalendar {
             if (this.isOpen && !this.calendarWrapper.contains(e.target)) {
                 this.closeCalendar();
             }
+        });
+        
+        // Prevent clicks within the calendar from bubbling up
+        this.calendarDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
         });
         
         // Store the original input's name
@@ -166,9 +177,38 @@ class CustomCalendar {
     }
     
     openCalendar() {
+        // Position the calendar to the side instead of below
+        this.positionCalendarToSide();
+        
         this.calendarDropdown.classList.add('active');
         this.isOpen = true;
         this.renderCalendar();
+    }
+    
+    // New method to position the calendar to the side
+    positionCalendarToSide() {
+        // Get viewport dimensions
+        const viewportWidth = window.innerWidth;
+        
+        // Reset any previous positioning
+        this.calendarDropdown.style.left = '';
+        this.calendarDropdown.style.right = '';
+        this.calendarDropdown.style.top = '';
+        
+        // Get input dimensions and position
+        const inputRect = this.customInput.getBoundingClientRect();
+        
+        // Check if there's room on the right side
+        if (inputRect.right + 320 < viewportWidth) {
+            // Position to the right
+            this.calendarDropdown.style.left = '105%';
+            this.calendarDropdown.style.top = '0';
+        } else {
+            // Position to the left if not enough space on right
+            this.calendarDropdown.style.right = '105%';
+            this.calendarDropdown.style.left = 'auto';
+            this.calendarDropdown.style.top = '0';
+        }
     }
     
     closeCalendar() {
@@ -250,7 +290,8 @@ class CustomCalendar {
             }
             
             // Add click event to select date
-            dayElement.addEventListener('click', () => {
+            dayElement.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent event bubbling
                 this.selectDate(i);
             });
             

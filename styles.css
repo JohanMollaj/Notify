@@ -457,6 +457,7 @@ h2{
 .calendar-wrapper {
     position: relative;
     width: 100%;
+    z-index: 100; /* Ensure calendar appears above other elements */
 }
 
 .date-input-container {
@@ -510,6 +511,16 @@ h2{
 
 .calendar-dropdown.active {
     display: block;
+}
+
+@media (max-width: 768px) {
+    .calendar-dropdown {
+        /* On small screens, fall back to positioning below */
+        left: 0 !important;
+        right: auto !important;
+        top: 100% !important;
+        margin-top: 8px;
+    }
 }
 
 .calendar-header {
