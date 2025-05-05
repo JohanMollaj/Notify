@@ -112,6 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             setFontSize('medium');
         }
+        
+        // Make sure the active button is highlighted
+        updateActiveFontSizeButton();
     }
 
     // Theme functions
@@ -154,8 +157,34 @@ document.addEventListener('DOMContentLoaded', function() {
         // Update the current font size
         currentFontSize = size;
         
+        // Update active state on font size buttons
+        updateActiveFontSizeButton();
+        
         // Save to localStorage
         localStorage.setItem('appFontSize', size);
+    }
+
+    // Update active state on font size buttons
+    function updateActiveFontSizeButton() {
+        if (!decreaseFontBtn || !resetFontBtn || !increaseFontBtn) return;
+        
+        // Remove active class from all buttons
+        decreaseFontBtn.classList.remove('active');
+        resetFontBtn.classList.remove('active');
+        increaseFontBtn.classList.remove('active');
+        
+        // Add active class to the button that corresponds to the current font size
+        switch (currentFontSize) {
+            case 'small':
+                decreaseFontBtn.classList.add('active');
+                break;
+            case 'medium':
+                resetFontBtn.classList.add('active');
+                break;
+            case 'large':
+                increaseFontBtn.classList.add('active');
+                break;
+        }
     }
 
     function increaseFontSize() {

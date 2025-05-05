@@ -1444,3 +1444,52 @@ body.font-size-large {
         margin-bottom: 10px;
     }
 }
+
+/* Updated Font Size Button Styles */
+.font-size-btn {
+    background: none;
+    border: 2px solid transparent;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #2c3e50;
+    position: relative;
+}
+
+.font-size-btn:hover {
+    background-color: #b5cfe8;
+}
+
+/* Active font size button style - circle indicator */
+.font-size-btn.active {
+    background-color: rgba(181, 207, 232, 0.3);
+    border: 2px solid #3498db;
+}
+
+/* Increase size differences between font size icons */
+#decreaseFontBtn i {
+    font-size: 11px; /* Smaller icon for decrease */
+}
+
+#resetFontBtn i {
+    font-size: 16px; /* Medium icon for reset */
+}
+
+#increaseFontBtn i {
+    font-size: 22px; /* Larger icon for increase */
+}
+
+/* Dark theme active button style */
+.dark-theme .font-size-btn.active {
+    background-color: rgba(74, 108, 138, 0.3);
+    border: 2px solid #48a9e6;
+}
+
+.dark-theme .font-size-btn {
+    color: #e0e0e0;
+}
