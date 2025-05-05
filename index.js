@@ -31,6 +31,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tab-related DOM elements
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabContents = document.querySelectorAll('.tab-content');
+    
+    // Theme and font size related DOM elements
+    const themeToggleBtn = document.getElementById('themeToggleBtn');
+    const decreaseFontBtn = document.getElementById('decreaseFontBtn');
+    const resetFontBtn = document.getElementById('resetFontBtn');
+    const increaseFontBtn = document.getElementById('increaseFontBtn');
 
     // Initial check for tasks
     if(taskList && taskList.childElementCount === 0){
@@ -45,6 +51,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentFilter = 'all';
     let editingTaskId = null;
     let editingNoteId = null;
+    
+    // Theme and font size state variables
+    let isDarkTheme = false;
+    let currentFontSize = 'medium'; // Options: small, medium, large
 
     // Initialize date picker with today's date and improve behavior
     if (taskDueDate) {
@@ -67,18 +77,132 @@ document.addEventListener('DOMContentLoaded', function() {
         filteredTasks = [...tasks];
         filteredNotes = [...notes];
         
+        // Load user preferences for theme and font size
+        loadUserPreferences();
+        
         // Render initial data
         renderTasks();
         renderNotes();
         
         // Setup event listeners
         setupEventListeners();
+        setupThemeAndFontSizeListeners();
 
         // Make tasks and notes available globally for category filtering
         window.tasks = tasks;
         window.notes = notes;
         window.renderTasks = renderTasks;
         window.renderNotes = renderNotes;
+    }
+    
+    // Function to load user preferences
+    function loadUserPreferences() {
+        // Load theme preference
+        const storedTheme = localStorage.getItem('appTheme');
+        if (storedTheme === 'dark') {
+            enableDarkTheme();
+        } else {
+            disableDarkTheme();
+        }
+        
+        // Load font size preference
+        const storedFontSize = localStorage.getItem('appFontSize');
+        if (storedFontSize) {
+            setFontSize(storedFontSize);
+        } else {
+            setFontSize('medium');
+        }
+    }
+
+    // Theme functions
+    function toggleTheme() {
+        if (isDarkTheme) {
+            disableDarkTheme();
+        } else {
+            enableDarkTheme();
+        }
+    }
+
+    function enableDarkTheme() {
+        document.body.classList.add('dark-theme');
+        if (themeToggleBtn) {
+            themeToggleBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            themeToggleBtn.title = 'Switch to Light Theme';
+        }
+        isDarkTheme = true;
+        localStorage.setItem('appTheme', 'dark');
+    }
+
+    function disableDarkTheme() {
+        document.body.classList.remove('dark-theme');
+        if (themeToggleBtn) {
+            themeToggleBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+            themeToggleBtn.title = 'Switch to Dark Theme';
+        }
+        isDarkTheme = false;
+        localStorage.setItem('appTheme', 'light');
+    }
+
+    // Font size functions
+    function setFontSize(size) {
+        // Remove any existing font size classes
+        document.body.classList.remove('font-size-small', 'font-size-medium', 'font-size-large');
+        
+        // Add the appropriate class
+        document.body.classList.add(`font-size-${size}`);
+        
+        // Update the current font size
+        currentFontSize = size;
+        
+        // Save to localStorage
+        localStorage.setItem('appFontSize', size);
+    }
+
+    function increaseFontSize() {
+        switch (currentFontSize) {
+            case 'small':
+                setFontSize('medium');
+                break;
+            case 'medium':
+                setFontSize('large');
+                break;
+            // If already large, do nothing
+        }
+    }
+
+    function decreaseFontSize() {
+        switch (currentFontSize) {
+            case 'large':
+                setFontSize('medium');
+                break;
+            case 'medium':
+                setFontSize('small');
+                break;
+            // If already small, do nothing
+        }
+    }
+
+    function resetFontSize() {
+        setFontSize('medium');
+    }
+
+    // Setup theme and font size event listeners
+    function setupThemeAndFontSizeListeners() {
+        if (themeToggleBtn) {
+            themeToggleBtn.addEventListener('click', toggleTheme);
+        }
+        
+        if (decreaseFontBtn) {
+            decreaseFontBtn.addEventListener('click', decreaseFontSize);
+        }
+        
+        if (resetFontBtn) {
+            resetFontBtn.addEventListener('click', resetFontSize);
+        }
+        
+        if (increaseFontBtn) {
+            increaseFontBtn.addEventListener('click', increaseFontSize);
+        }
     }
 
     // Tab functionality
@@ -253,12 +377,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function deleteTask(id) {
-        // Ask for confirmation
-        if (confirm('Are you sure you want to delete this task?')) {
-            tasks = tasks.filter(task => task.id !== id);
-            saveTasks();
-            renderTasks();
-        }
+        // Remove confirmation dialog and delete directly
+        tasks = tasks.filter(task => task.id !== id);
+        saveTasks();
+        renderTasks();
     }
 
     function toggleTaskStatus(id) {
@@ -578,12 +700,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function deleteNote(id) {
-        // Ask for confirmation
-        if (confirm('Are you sure you want to delete this note?')) {
-            notes = notes.filter(note => note.id !== id);
-            saveNotes();
-            renderNotes();
-        }
+        // Remove confirmation dialog and delete directly
+        notes = notes.filter(note => note.id !== id);
+        saveNotes();
+        renderNotes();
     }
 
     // Format timestamp for display
