@@ -1103,3 +1103,393 @@ h2{
         transform: translateX(-50%);
     }
 }
+
+/* Theme and Font Size Controls */
+.app-settings {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.theme-toggle, .font-size-controls {
+    display: flex;
+    align-items: center;
+}
+
+.theme-btn, .font-size-btn {
+    background: none;
+    border: none;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    color: #2c3e50;
+}
+
+.theme-btn:hover, .font-size-btn:hover {
+    background-color: #b5cfe8;
+}
+
+.font-size-controls {
+    gap: 5px;
+}
+
+/* Dark Theme Styles */
+body.dark-theme {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+/* Container styles in dark mode */
+.dark-theme .container {
+    background-color: #1f1f1f;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Sidebar styles in dark mode */
+.dark-theme .sidebar {
+    background-color: #262626;
+    border-right-color: #333;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .sidebar-header {
+    border-bottom-color: #333;
+}
+
+.dark-theme .category-item {
+    color: #e0e0e0;
+}
+
+.dark-theme .category-item:hover {
+    background-color: #363636;
+}
+
+.dark-theme .category-item.active {
+    background-color: #4a5568;
+}
+
+/* Tab styles in dark mode */
+.dark-theme .tab-container {
+    border-bottom-color: #333;
+}
+
+.dark-theme .tab-btn {
+    color: #a0aec0;
+}
+
+.dark-theme .tab-btn:hover {
+    color: #48a9e6;
+}
+
+.dark-theme .tab-btn.active {
+    color: #48a9e6;
+    border-bottom-color: #48a9e6;
+}
+
+/* Task styles in dark mode */
+.dark-theme .task-item {
+    background-color: #2d3748;
+    border-left-color: #48a9e6;
+}
+
+.dark-theme .task-item:hover {
+    background-color: #374151;
+}
+
+.dark-theme .task-item.completed {
+    background-color: #1a2e1a;
+    border-left-color: #38a169;
+}
+
+.dark-theme .task-text {
+    color: #e0e0e0;
+}
+
+.dark-theme .task-item.completed .task-text {
+    color: #a0aec0;
+}
+
+.dark-theme .task-date {
+    color: #a0aec0;
+}
+
+.dark-theme .task-actions button {
+    color: #a0aec0;
+}
+
+.dark-theme .edit-btn:hover {
+    color: #f6ad55;
+}
+
+.dark-theme .delete-btn:hover {
+    color: #f56565;
+}
+
+/* Note styles in dark mode */
+.dark-theme .note-item {
+    background-color: #2c2a17;
+    border-left-color: #d69e2e;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.dark-theme .note-title {
+    color: #e0e0e0;
+}
+
+.dark-theme .note-date {
+    color: #a0aec0;
+}
+
+.dark-theme .note-content {
+    color: #cbd5e0;
+}
+
+/* Dialog styles in dark mode */
+.dark-theme .task-dialog {
+    background-color: #2d3748;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark-theme .dialog-header {
+    border-bottom-color: #4a5568;
+}
+
+.dark-theme .dialog-header h3 {
+    color: #e0e0e0;
+}
+
+.dark-theme .close-dialog,
+.dark-theme .close-icon-selector-modal {
+    color: #a0aec0;
+}
+
+.dark-theme .form-group label {
+    color: #e0e0e0;
+}
+
+.dark-theme .form-group input,
+.dark-theme .form-group textarea,
+.dark-theme .task-select,
+.dark-theme .custom-date-input {
+    background-color: #2d3748;
+    border-color: #4a5568;
+    color: #e0e0e0;
+}
+
+.dark-theme .form-group input:focus,
+.dark-theme .form-group textarea:focus {
+    border-color: #48a9e6;
+}
+
+.dark-theme .calendar-icon {
+    color: #a0aec0;
+}
+
+.dark-theme .cancel-btn {
+    background-color: #4a5568;
+    color: #e0e0e0;
+}
+
+.dark-theme .save-btn {
+    background-color: #4a6c8a;
+    color: #e0e0e0;
+}
+
+.dark-theme .cancel-btn:hover {
+    background-color: #3d4a5c;
+}
+
+.dark-theme .save-btn:hover {
+    background-color: #3b5b78;
+}
+
+/* Filter button styles in dark mode */
+.dark-theme .filter-btn {
+    background-color: #4a5568;
+    color: #e0e0e0;
+}
+
+.dark-theme .filter-btn.active {
+    background-color: #4a6c8a;
+}
+
+/* Category badge styles in dark mode */
+.dark-theme .task-category {
+    background-color: #4a6c8a;
+}
+
+.dark-theme .note-category {
+    background-color: #d69e2e;
+    color: #2c2a17;
+}
+
+/* Calendar styles in dark mode */
+.dark-theme .calendar-dropdown {
+    background-color: #2d3748;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.dark-theme .month-year {
+    color: #e0e0e0;
+}
+
+.dark-theme .weekday {
+    color: #a0aec0;
+}
+
+.dark-theme .day {
+    color: #e0e0e0;
+}
+
+.dark-theme .day:hover {
+    background-color: #3d4a5c;
+}
+
+.dark-theme .day.out-of-month {
+    color: #718096;
+}
+
+.dark-theme .day.today {
+    color: #48a9e6;
+}
+
+.dark-theme .day.selected {
+    background-color: #48a9e6;
+    color: #1a202c;
+}
+
+.dark-theme .day.selected:hover {
+    background-color: #3b95d3;
+}
+
+.dark-theme .calendar-footer {
+    border-top-color: #4a5568;
+}
+
+/* Icon selector styles in dark mode */
+.dark-theme .icon-selector-container {
+    background-color: #2d3748;
+    border-color: #4a5568;
+}
+
+.dark-theme .icon-option {
+    background-color: #1f1f1f;
+    border-color: #4a5568;
+}
+
+.dark-theme .icon-option:hover {
+    background-color: #3d4a5c;
+}
+
+.dark-theme .icon-option.selected {
+    background-color: #4a6c8a;
+    border-color: #48a9e6;
+}
+
+.dark-theme .icon-option i {
+    color: #e0e0e0;
+}
+
+/* Font Size Variations */
+body.font-size-small {
+    font-size: 14px;
+}
+
+body.font-size-medium {
+    font-size: 16px;
+}
+
+body.font-size-large {
+    font-size: 18px;
+}
+
+/* Adjust task and note items based on font size */
+.font-size-small .task-item,
+.font-size-small .note-item {
+    padding: 10px;
+    margin-bottom: 6px;
+}
+
+.font-size-large .task-item,
+.font-size-large .note-item {
+    padding: 14px;
+    margin-bottom: 10px;
+}
+
+.font-size-small .task-text,
+.font-size-small .note-content {
+    font-size: 14px;
+}
+
+.font-size-large .task-text,
+.font-size-large .note-content {
+    font-size: 18px;
+}
+
+/* Responsive adjustments for settings */
+@media (max-width: 768px) {
+    .container-head {
+        flex-direction: column;
+    }
+    
+    .app-settings {
+        width: 100%;
+        justify-content: center;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+}
+
+/* Updated Font Size Button Styles */
+.font-size-btn {
+    background: none;
+    border: 2px solid transparent;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    color: #2c3e50;
+    position: relative;
+}
+
+.font-size-btn:hover {
+    background-color: #b5cfe8;
+}
+
+/* Active font size button style - circle indicator */
+.font-size-btn.active {
+    background-color: rgba(181, 207, 232, 0.3);
+    border: 2px solid #3498db;
+}
+
+/* Increase size differences between font size icons */
+#decreaseFontBtn i {
+    font-size: 11px; /* Smaller icon for decrease */
+}
+
+#resetFontBtn i {
+    font-size: 16px; /* Medium icon for reset */
+}
+
+#increaseFontBtn i {
+    font-size: 22px; /* Larger icon for increase */
+}
+
+/* Dark theme active button style */
+.dark-theme .font-size-btn.active {
+    background-color: rgba(74, 108, 138, 0.3);
+    border: 2px solid #48a9e6;
+}
+
+.dark-theme .font-size-btn {
+    color: #e0e0e0;
+}
